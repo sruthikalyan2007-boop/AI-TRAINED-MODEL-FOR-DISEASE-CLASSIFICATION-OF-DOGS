@@ -1,1 +1,79 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Canine Lens | Skin health screening</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Fraunces:opsz,wght@9..144,600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body>
+  <main class="shell">
+    <header class="topbar">
+      <a class="brand" href="{{ url_for('index') }}"><span class="brand-mark">✦</span> CANINE LENS</a>
+      <span class="status"><span class="status-dot"></span> AI screening tool</span>
+    </header>
+
+    <section class="intro">
+      <p class="eyebrow">Dog skin health, at a glance</p>
+      <h1>A clearer first look<br><em>for your best friend.</em></h1>
+      <p class="lede">Upload a well-lit photo and our trained image model will screen for common skin conditions, then share sensible next steps.</p>
+    </section>
+
+    <section class="workspace {% if result %}has-result{% endif %}">
+      <form class="upload-panel" method="post" enctype="multipart/form-data">
+        <div class="panel-kicker"><span>01</span> Upload a photo</div>
+        <label class="dropzone" for="image-input">
+          <span class="upload-icon">↑</span>
+          <strong>Drop an image here</strong>
+          <span>or click to browse from your device</span>
+          <small>JPG, JPEG, or PNG · up to 10 MB</small>
+          <input id="image-input" name="image" type="file" accept="image/png,image/jpeg" required>
+        </label>
+        <p class="file-name" id="file-name">No image selected</p>
+        <button class="analyze-button" type="submit"><span>Analyze image</span><span>→</span></button>
+        {% if error %}<p class="error" role="alert">{{ error }}</p>{% endif %}
+      </form>
+
+      {% if result %}
+      <section class="result-panel" aria-live="polite">
+        <div class="panel-kicker"><span>02</span> Screening result</div>
+        <div class="result-heading {% if result.is_healthy %}healthy{% endif %}">
+          <div class="result-icon">{% if result.is_healthy %}✓{% else %}!{% endif %}</div>
+          <div>
+            <p class="result-label">{{ 'No disease detected' if result.is_healthy else 'Possible condition detected' }}</p>
+            <h2>{{ result.diagnosis }}</h2>
+          </div>
+        </div>
+        <div class="confidence-row"><span>Model confidence</span><strong>{{ result.confidence }}%</strong></div>
+        <div class="meter"><span style="width: {{ result.confidence }}%"></span></div>
+        <p class="result-note">Based on <strong>{{ filename }}</strong>. This is a screening result, not a diagnosis.</p>
+        <div class="precautions">
+          <p class="section-label">Recommended next steps</p>
+          <ul>{% for precaution in result.precautions %}<li>{{ precaution }}</li>{% endfor %}</ul>
+        </div>
+      </section>
+      {% else %}
+      <aside class="info-panel">
+        <div class="panel-kicker"><span>02</span> What you’ll receive</div>
+        <div class="info-item"><span>◌</span><div><strong>Clear screening</strong><p>Healthy or potentially affected, with the predicted condition.</p></div></div>
+        <div class="info-item"><span>＋</span><div><strong>Practical precautions</strong><p>Simple care guidance tailored to the model’s result.</p></div></div>
+        <div class="info-item"><span>⌁</span><div><strong>Confidence score</strong><p>See how strongly the model favors its top prediction.</p></div></div>
+      </aside>
+      {% endif %}
+    </section>
+
+    <footer><span>For early awareness only</span><span>Always confirm concerns with a qualified veterinarian.</span></footer>
+  </main>
+  <script>
+    const input = document.getElementById('image-input');
+    const fileName = document.getElementById('file-name');
+    input.addEventListener('change', () => {
+      fileName.textContent = input.files.length ? input.files[0].name : 'No image selected';
+    });
+  </script>
+</body>
+</html>
 
