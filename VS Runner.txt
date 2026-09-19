@@ -1,0 +1,43 @@
+import numpy as np
+import tensorflow as tf
+from tensorflow.keras.preprocessing import image
+import matplotlib.pyplot as plt
+
+# 1. Load the model you downloaded
+model = tf.keras.models.load_model('dog_disease_model.h5')
+print("Model loaded successfully from your computer! 🚀")
+
+# 2. The 6 disease categories
+class_names = ['Dermatitis', 'Fungal_infections', 'Healthy', 'Hypersensitivity', 'demodicosis', 'ringworm']
+
+def predict_my_dog(image_path):
+    # Load and resize the image just like we did in Kaggle
+    img = image.load_img(image_path, target_size=(224, 224))
+    plt.imshow(img)
+    plt.axis('off')
+    plt.show()
+
+    # Prep the image array
+    img_array = image.img_to_array(img)
+    img_array = np.expand_dims(img_array, axis=0)
+    img_array /= 255.0  
+
+    # Run the prediction
+    predictions = model.predict(img_array)[0]
+    winning_index = np.argmax(predictions)
+    
+    # Print out results
+    print("====================================")
+    print(f"🩺 TOP DIAGNOSIS: {class_names[winning_index].upper()}")
+    print(f"📊 CONFIDENCE:    {predictions[winning_index] * 100:.2f}%")
+    print("====================================\n")
+    
+    print("🔍 FULL AI ANALYSIS:")
+    for i in range(len(class_names)):
+        disease_name = class_names[i]
+        score = predictions[i] * 100
+        bar = "█" * int(score / 5)
+        print(f"{disease_name.ljust(18)} : {score:5.2f}% | {bar}")
+
+# 3. Just type the filename of your picture here!
+predict_my_dog('test_dog.png')
